@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: block2-sklearn-mlflow
+Version: 0.1.0
+Summary: Block 2: Scikit-Learn Pipelines & MLflow Experiment Tracking
+Requires-Python: >=3.11
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: seaborn
+Requires-Dist: scikit-learn
+Requires-Dist: mlflow>=2.0
+Requires-Dist: jupyter
+Requires-Dist: ipykernel

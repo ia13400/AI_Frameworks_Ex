@@ -1,0 +1,8 @@
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+mlflow>=2.0
+jupyter
+ipykernel
