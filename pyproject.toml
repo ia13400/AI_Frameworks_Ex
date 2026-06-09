@@ -15,6 +15,7 @@ dependencies = [
     "ipykernel",
     "transformers",
     "seaborn>=0.13.2",
+    "polars",
 ]
 
 [tool.uv]
