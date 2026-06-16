@@ -1,0 +1,697 @@
+{
+  "_comment": "Valid JSON does not support comments, so source and filtering notes are stored as metadata fields.",
+  "source": {
+    "positive_words_file": "hu_liu_positive_one_token_words.json",
+    "negative_words_file": "hu_liu_negative_one_token_words.json",
+    "lexicon": "Hu & Liu Opinion Lexicon via nltk.corpus.opinion_lexicon"
+  },
+  "filtering_method": {
+    "input_constraint": "Every positive word is copied from hu_liu_positive_one_token_words.json and every negative word is copied from hu_liu_negative_one_token_words.json.",
+    "tokenizer_constraint": "The source files contain only words where tokenizer.encode(' ' + word, add_special_tokens=False) returns exactly one token id for EleutherAI/pythia-410m.",
+    "pairing_method": "Pairs were manually selected across different semantic fields/domains while preserving the original token, token_id, and sentiment metadata from the source JSON files."
+  },
+  "pair_count": 40,
+  "field_count": 10,
+  "pairs": [
+    {
+      "id": "food_taste_01",
+      "field": "food_taste",
+      "field_label": "Food and taste",
+      "positive": {
+        "word": "delicious",
+        "token": " delicious",
+        "token_id": 17319,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "disgusting",
+        "token": " disgusting",
+        "token_id": 40449,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "food_taste_02",
+      "field": "food_taste",
+      "field_label": "Food and taste",
+      "positive": {
+        "word": "fresh",
+        "token": " fresh",
+        "token_id": 5352,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "stale",
+        "token": " stale",
+        "token_id": 46745,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "food_taste_03",
+      "field": "food_taste",
+      "field_label": "Food and taste",
+      "positive": {
+        "word": "sweet",
+        "token": " sweet",
+        "token_id": 7353,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "sour",
+        "token": " sour",
+        "token_id": 18988,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "food_taste_04",
+      "field": "food_taste",
+      "field_label": "Food and taste",
+      "positive": {
+        "word": "pleasant",
+        "token": " pleasant",
+        "token_id": 17127,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "nasty",
+        "token": " nasty",
+        "token_id": 26321,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "service_05",
+      "field": "service",
+      "field_label": "Service and interaction",
+      "positive": {
+        "word": "helpful",
+        "token": " helpful",
+        "token_id": 9371,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "rude",
+        "token": " rude",
+        "token_id": 30446,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "service_06",
+      "field": "service",
+      "field_label": "Service and interaction",
+      "positive": {
+        "word": "friendly",
+        "token": " friendly",
+        "token_id": 11453,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "hostile",
+        "token": " hostile",
+        "token_id": 21668,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "service_07",
+      "field": "service",
+      "field_label": "Service and interaction",
+      "positive": {
+        "word": "prompt",
+        "token": " prompt",
+        "token_id": 8959,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "delay",
+        "token": " delay",
+        "token_id": 5778,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "service_08",
+      "field": "service",
+      "field_label": "Service and interaction",
+      "positive": {
+        "word": "polite",
+        "token": " polite",
+        "token_id": 30405,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "harsh",
+        "token": " harsh",
+        "token_id": 17770,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "product_quality_09",
+      "field": "product_quality",
+      "field_label": "Product quality",
+      "positive": {
+        "word": "excellent",
+        "token": " excellent",
+        "token_id": 7126,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "poor",
+        "token": " poor",
+        "token_id": 4105,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "product_quality_10",
+      "field": "product_quality",
+      "field_label": "Product quality",
+      "positive": {
+        "word": "superior",
+        "token": " superior",
+        "token_id": 8936,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "inferior",
+        "token": " inferior",
+        "token_id": 18134,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "product_quality_11",
+      "field": "product_quality",
+      "field_label": "Product quality",
+      "positive": {
+        "word": "perfect",
+        "token": " perfect",
+        "token_id": 3962,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "defective",
+        "token": " defective",
+        "token_id": 22327,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "product_quality_12",
+      "field": "product_quality",
+      "field_label": "Product quality",
+      "positive": {
+        "word": "reliable",
+        "token": " reliable",
+        "token_id": 9630,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "unreliable",
+        "token": " unreliable",
+        "token_id": 36230,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "emotion_13",
+      "field": "emotion",
+      "field_label": "Emotion and mood",
+      "positive": {
+        "word": "happy",
+        "token": " happy",
+        "token_id": 5211,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "sad",
+        "token": " sad",
+        "token_id": 8872,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "emotion_14",
+      "field": "emotion",
+      "field_label": "Emotion and mood",
+      "positive": {
+        "word": "cheerful",
+        "token": " cheerful",
+        "token_id": 39567,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "miserable",
+        "token": " miserable",
+        "token_id": 28714,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "emotion_15",
+      "field": "emotion",
+      "field_label": "Emotion and mood",
+      "positive": {
+        "word": "calm",
+        "token": " calm",
+        "token_id": 11874,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "anxious",
+        "token": " anxious",
+        "token_id": 20138,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "emotion_16",
+      "field": "emotion",
+      "field_label": "Emotion and mood",
+      "positive": {
+        "word": "pleased",
+        "token": " pleased",
+        "token_id": 13864,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "disappointed",
+        "token": " disappointed",
+        "token_id": 19271,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "performance_17",
+      "field": "performance",
+      "field_label": "Performance and operation",
+      "positive": {
+        "word": "fast",
+        "token": " fast",
+        "token_id": 3809,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "slow",
+        "token": " slow",
+        "token_id": 3468,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "performance_18",
+      "field": "performance",
+      "field_label": "Performance and operation",
+      "positive": {
+        "word": "efficient",
+        "token": " efficient",
+        "token_id": 5919,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "inefficient",
+        "token": " inefficient",
+        "token_id": 31334,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "performance_19",
+      "field": "performance",
+      "field_label": "Performance and operation",
+      "positive": {
+        "word": "smooth",
+        "token": " smooth",
+        "token_id": 6032,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "rough",
+        "token": " rough",
+        "token_id": 7227,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "performance_20",
+      "field": "performance",
+      "field_label": "Performance and operation",
+      "positive": {
+        "word": "stable",
+        "token": " stable",
+        "token_id": 6474,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "unstable",
+        "token": " unstable",
+        "token_id": 17631,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "price_value_21",
+      "field": "price_value",
+      "field_label": "Price and value",
+      "positive": {
+        "word": "affordable",
+        "token": " affordable",
+        "token_id": 18261,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "expensive",
+        "token": " expensive",
+        "token_id": 8214,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "price_value_22",
+      "field": "price_value",
+      "field_label": "Price and value",
+      "positive": {
+        "word": "valuable",
+        "token": " valuable",
+        "token_id": 9865,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "worthless",
+        "token": " worthless",
+        "token_id": 40790,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "price_value_23",
+      "field": "price_value",
+      "field_label": "Price and value",
+      "positive": {
+        "word": "worthwhile",
+        "token": " worthwhile",
+        "token_id": 32811,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "waste",
+        "token": " waste",
+        "token_id": 8138,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "price_value_24",
+      "field": "price_value",
+      "field_label": "Price and value",
+      "positive": {
+        "word": "economical",
+        "token": " economical",
+        "token_id": 37265,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "costly",
+        "token": " costly",
+        "token_id": 19983,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "appearance_design_25",
+      "field": "appearance_design",
+      "field_label": "Appearance and design",
+      "positive": {
+        "word": "beautiful",
+        "token": " beautiful",
+        "token_id": 5389,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "ugly",
+        "token": " ugly",
+        "token_id": 19513,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "appearance_design_26",
+      "field": "appearance_design",
+      "field_label": "Appearance and design",
+      "positive": {
+        "word": "elegant",
+        "token": " elegant",
+        "token_id": 20654,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "awkward",
+        "token": " awkward",
+        "token_id": 19328,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "appearance_design_27",
+      "field": "appearance_design",
+      "field_label": "Appearance and design",
+      "positive": {
+        "word": "clean",
+        "token": " clean",
+        "token_id": 4076,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "dirty",
+        "token": " dirty",
+        "token_id": 16076,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "appearance_design_28",
+      "field": "appearance_design",
+      "field_label": "Appearance and design",
+      "positive": {
+        "word": "stylish",
+        "token": " stylish",
+        "token_id": 38194,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "messy",
+        "token": " messy",
+        "token_id": 36396,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "safety_trust_29",
+      "field": "safety_trust",
+      "field_label": "Safety and trust",
+      "positive": {
+        "word": "safe",
+        "token": " safe",
+        "token_id": 4999,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "dangerous",
+        "token": " dangerous",
+        "token_id": 8312,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "safety_trust_30",
+      "field": "safety_trust",
+      "field_label": "Safety and trust",
+      "positive": {
+        "word": "secure",
+        "token": " secure",
+        "token_id": 7895,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "insecure",
+        "token": " insecure",
+        "token_id": 46519,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "safety_trust_31",
+      "field": "safety_trust",
+      "field_label": "Safety and trust",
+      "positive": {
+        "word": "trustworthy",
+        "token": " trustworthy",
+        "token_id": 46808,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "deceptive",
+        "token": " deceptive",
+        "token_id": 50015,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "safety_trust_32",
+      "field": "safety_trust",
+      "field_label": "Safety and trust",
+      "positive": {
+        "word": "credible",
+        "token": " credible",
+        "token_id": 24542,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "fraudulent",
+        "token": " fraudulent",
+        "token_id": 25447,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "usability_33",
+      "field": "usability",
+      "field_label": "Usability",
+      "positive": {
+        "word": "easy",
+        "token": " easy",
+        "token_id": 3477,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "difficult",
+        "token": " difficult",
+        "token_id": 2834,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "usability_34",
+      "field": "usability",
+      "field_label": "Usability",
+      "positive": {
+        "word": "clear",
+        "token": " clear",
+        "token_id": 2590,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "confusing",
+        "token": " confusing",
+        "token_id": 21643,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "usability_35",
+      "field": "usability",
+      "field_label": "Usability",
+      "positive": {
+        "word": "usable",
+        "token": " usable",
+        "token_id": 31998,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "useless",
+        "token": " useless",
+        "token_id": 19437,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "usability_36",
+      "field": "usability",
+      "field_label": "Usability",
+      "positive": {
+        "word": "convenient",
+        "token": " convenient",
+        "token_id": 11638,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "awkward",
+        "token": " awkward",
+        "token_id": 19328,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "reputation_37",
+      "field": "reputation",
+      "field_label": "Reputation and business outcome",
+      "positive": {
+        "word": "successful",
+        "token": " successful",
+        "token_id": 5547,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "failed",
+        "token": " failed",
+        "token_id": 4242,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "reputation_38",
+      "field": "reputation",
+      "field_label": "Reputation and business outcome",
+      "positive": {
+        "word": "popular",
+        "token": " popular",
+        "token_id": 4633,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "unpopular",
+        "token": " unpopular",
+        "token_id": 46807,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "reputation_39",
+      "field": "reputation",
+      "field_label": "Reputation and business outcome",
+      "positive": {
+        "word": "acclaimed",
+        "token": " acclaimed",
+        "token_id": 42445,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "criticized",
+        "token": " criticized",
+        "token_id": 23159,
+        "sentiment": "negative"
+      }
+    },
+    {
+      "id": "reputation_40",
+      "field": "reputation",
+      "field_label": "Reputation and business outcome",
+      "positive": {
+        "word": "famous",
+        "token": " famous",
+        "token_id": 8530,
+        "sentiment": "positive"
+      },
+      "negative": {
+        "word": "notorious",
+        "token": " notorious",
+        "token_id": 32566,
+        "sentiment": "negative"
+      }
+    }
+  ]
+}

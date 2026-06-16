@@ -1,0 +1,34 @@
+{
+  "description": "Clean prompts express positive sentiment. Corrupted prompts express matched negative sentiment with minimal changes.",
+  "target_tokens": {
+    "positive": [" great", " good", " excellent", " amazing", " wonderful"],
+    "negative": [" terrible", " bad", " awful", " horrible", " disappointing"]
+  },
+  "prompt_pairs": [
+    {
+      "id": "movie_01",
+      "clean": "I love this movie because it is",
+      "corrupted": "I hate this movie because it is"
+    },
+    {
+      "id": "food_01",
+      "clean": "The food was delicious and the service was",
+      "corrupted": "The food was disgusting and the service was"
+    },
+    {
+      "id": "book_01",
+      "clean": "I enjoyed this book because it was",
+      "corrupted": "I disliked this book because it was"
+    },
+    {
+      "id": "hotel_01",
+      "clean": "The hotel experience was pleasant and the room was",
+      "corrupted": "The hotel experience was unpleasant and the room was"
+    },
+    {
+      "id": "game_01",
+      "clean": "I really liked this game because it was",
+      "corrupted": "I really hated this game because it was"
+    }
+  ]
+}
