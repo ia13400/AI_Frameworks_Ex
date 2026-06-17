@@ -170,5 +170,8 @@ def normalized_word_key(word: str) -> str:
 def build_hu_liu_lookup(positive_words, negative_words):
     lookup = {}
     for item in positive_words + negative_words:
-        lookup[normalized_word_key(item["word"])] = item["sentiment"]
+        lookup[normalized_word_key(item["word"])] = {
+            "word": item["word"],
+            "sentiment": item["sentiment"],
+        }
     return lookup

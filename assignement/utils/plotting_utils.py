@@ -413,3 +413,85 @@ def plot_logistic_regression_probabilities(probability_rows):
     plt.savefig(OUTPUT_PNG_DIR / "logistic_regression_field_word_probabilities.png", dpi=130)
     plt.close()
     print("Saved plot: logistic_regression_field_word_probabilities.png")
+
+def plot_logistic_regression_sentiment_axis(
+    probability_rows,
+    title="Logistic Regression Sentiment Axis",
+    max_words_per_side=25,
+):
+    """
+    Visualize the sentiment axis learned by the logistic-regression probe.
+
+    Words are ordered by their predicted probability of belonging
+    to the positive sentiment class.
+
+    Positive words:
+        probability -> 1
+
+    Negative words:
+        probability -> 0
+
+    Misclassified words are highlighted with a red border.
+    """
+
+    probability_rows = sorted(
+        probability_rows,
+        key=lambda row: row["probability_positive"]
+    )
+
+    boundary_rows = sorted(
+        probability_rows,
+        key=lambda row: abs(
+            row["probability_positive"] - 0.5
+        )
+    )
+
+    selected_rows = boundary_rows[:max_words_per_side]
+
+    words = [row["word"] for row in selected_rows]
+
+    probabilities = [
+        row["probability_positive"]
+        for row in selected_rows
+    ]
+
+    colors = [
+        "tab:orange"
+        if row["sentiment"] == "positive"
+        else "tab:blue"
+        for row in selected_rows
+    ]
+
+    plt.figure(
+        figsize=(12, max(8, len(selected_rows) * 0.25))
+    )
+
+    bars = plt.barh(
+        words,
+        probabilities,
+        color=colors,
+    )
+
+    for bar, row in zip(bars, selected_rows):
+        if not row["is_correct"]:
+            bar.set_edgecolor("red")
+            bar.set_linewidth(2.5)
+
+    plt.axvline(
+        0.5,
+        linestyle="--",
+        linewidth=1.5,
+        label="Decision Boundary",
+    )
+
+    plt.xlabel("Predicted Probability of Positive Sentiment")
+    plt.ylabel("Word")
+    plt.title(title)
+
+    plt.xlim(0, 1)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig(OUTPUT_PNG_DIR / "logistic_regression_sentiment_axis.png", dpi=130)
+    plt.close()
+    print("Saved plot: logistic_regression_sentiment_axis.png")

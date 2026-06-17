@@ -7,7 +7,6 @@ from config import (
     ARITHMETIC_EXPERIMENTS,
     FIELD_PAIRS_PATH,
     NEIGHBOR_TARGET_WORDS,
-    PROJECTION_FIELDS_TO_KEEP,
 )
 from lexicon_utils import (
     build_hu_liu_lookup,
@@ -72,7 +71,8 @@ def run_embedding_norm_analysis(embedding_matrix):
 def hu_liu_lookup_from_token_text(token_text, hu_liu_lookup):
     normalized = normalized_word_key(token_text)
     if normalized in hu_liu_lookup:
-        return f"HuLiu:{hu_liu_lookup[normalized]}:{token_text}"
+        item = hu_liu_lookup[normalized]
+        return f"HuLiu:{item['sentiment']}: {item['word']}"
     return ""
 
 
@@ -190,12 +190,13 @@ def run_cosine_neighbor_analysis(
 
 
 def run_embedding_arithmetic_analysis(
+    arithmetic_experiments,
     tokenizer,
     embedding_matrix,
     positive_words,
     negative_words,
 ):
-    for expression in ARITHMETIC_EXPERIMENTS:
+    for expression in arithmetic_experiments:
         embedding_arithmetic_neighbors(
             expression,
             tokenizer,
@@ -239,39 +240,13 @@ def run_sentiment_direction_projection(tokenizer, embedding_matrix):
     sentiment_direction = F.normalize(good_vector - bad_vector, dim=0)
     sentiment_pairs_by_field = json.loads(FIELD_PAIRS_PATH.read_text(encoding="utf-8"))
 
-    projection_fields = [
-        field
-        for field in sentiment_pairs_by_field["fields"]
-        if field["field"] in PROJECTION_FIELDS_TO_KEEP
-    ]
-    projection_rows = build_projection_rows(
-        projection_fields,
-        embedding_matrix,
-        sentiment_direction,
-    )
-
     print("\nProjection onto sentiment direction: embedding('good') - embedding('bad')")
     print(f"good token_id={good_id}, bad token_id={bad_id}")
-    print("-" * 96)
-    for row in sorted(projection_rows, key=lambda item: item["projection_score"], reverse=True):
-        print(
-            f"{row['word']:<16} "
-            f"sentiment={row['sentiment']:<8} "
-            f"field={row['field']:<18} "
-            f"token_id={row['token_id']:>5} "
-            f"projection={row['projection_score']:+.4f}"
-        )
-
-    plot_sentiment_projection(
-        projection_rows,
-        [field["field_label"] for field in projection_fields],
-        "sentiment_direction_projection_by_field.png",
-        "Hu & Liu word-pair projections onto embedding('good') - embedding('bad')",
-        (12, 5),
-    )
 
     all_fields = sentiment_pairs_by_field["fields"]
     all_rows = build_projection_rows(all_fields, embedding_matrix, sentiment_direction)
+    print("-" * 96)
+
     plot_sentiment_projection(
         all_rows,
         [field["field_label"] for field in all_fields],
@@ -296,6 +271,7 @@ def run_token_embedding_visualization(tokenizer, sentiment_state):
         negative_words,
     )
     run_embedding_arithmetic_analysis(
+        ARITHMETIC_EXPERIMENTS,
         tokenizer,
         embedding_matrix,
         positive_words,

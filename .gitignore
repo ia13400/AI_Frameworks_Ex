@@ -1,3 +1,10 @@
 .venv
 Block 2/mlflow.db
 assignement/inputs/nltk_data/corpora/opinion_lexicon.zip
+assignement/utils/__pycache__/sst2_analysis.cpython-314.pyc
+assignement/utils/__pycache__/sentiment_embeddings.cpython-314.pyc
+assignement/utils/__pycache__/plotting_utils.cpython-314.pyc
+assignement/utils/__pycache__/model_utils.cpython-314.pyc
+assignement/utils/__pycache__/linear_probe.cpython-314.pyc
+assignement/utils/__pycache__/lexicon_utils.cpython-314.pyc
+assignement/utils/__pycache__/config.cpython-314.pyc

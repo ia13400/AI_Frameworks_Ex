@@ -16,7 +16,10 @@ from sklearn.preprocessing import StandardScaler
 
 from config import FLAT_PAIRS_PATH, PROBE_SPLIT_PATH
 from model_utils import section
-from plotting_utils import plot_logistic_regression_probabilities
+from plotting_utils import (
+    plot_logistic_regression_probabilities,
+    plot_logistic_regression_sentiment_axis,
+)
 
 
 PROBE_SPLIT_STRATEGY = "stratified_all_hu_liu_one_token_words_v1"
@@ -101,7 +104,7 @@ def print_probe_evaluation(split_name, y_true, y_pred):
     print(classification_report(y_true, y_pred, target_names=["negative", "positive"]))
 
 
-def print_misclassified_test_words(test_word_records, y_test, y_test_pred, y_test_prob):
+def print_misclassified_words(split_name, word_records, y_true, y_pred, y_prob):
     misclassified = [
         {
             "word": item["word"],
@@ -110,15 +113,15 @@ def print_misclassified_test_words(test_word_records, y_test, y_test_pred, y_tes
             "probability_positive": float(probability),
         }
         for item, true_label, predicted_label, probability in zip(
-            test_word_records,
-            y_test,
-            y_test_pred,
-            y_test_prob,
+            word_records,
+            y_true,
+            y_pred,
+            y_prob,
         )
         if true_label != predicted_label
     ]
 
-    print("\nMisclassified test words:")
+    print(f"\nMisclassified {split_name} words:")
     print("-" * 72)
     if misclassified:
         for row in sorted(misclassified, key=lambda item: item["word"]):
@@ -132,38 +135,155 @@ def print_misclassified_test_words(test_word_records, y_test, y_test_pred, y_tes
         print("None")
 
 
-def plot_field_word_probabilities(classifier, scaler, embedding_matrix):
-    if not FLAT_PAIRS_PATH.exists():
-        print(f"Skipping logistic regression probability plot: {FLAT_PAIRS_PATH} not found.")
-        return
+def build_logistic_regression_sentiment_axis_data(
+    classifier,
+    scaler,
+    embedding_matrix,
+    probe_words,
+):
+    """
+    Prepare visualization data for the sentiment-axis plot.
+    """
 
-    field_pairs = json.loads(FLAT_PAIRS_PATH.read_text(encoding="utf-8"))["pairs"]
-    field_words_by_key = {}
-    for pair in field_pairs:
-        for sentiment in ["positive", "negative"]:
-            item = pair[sentiment]
-            normalized_word = "".join(item["word"].split()).lower()
-            field_words_by_key.setdefault(normalized_word, item)
+    token_ids = torch.tensor(
+        [item["token_id"] for item in probe_words],
+        dtype=torch.long,
+    )
 
-    field_words = list(field_words_by_key.values())
-    field_word_ids = torch.tensor([item["token_id"] for item in field_words], dtype=torch.long)
-    field_word_vectors = embedding_matrix[field_word_ids].float().numpy()
-    field_word_vectors_scaled = scaler.transform(field_word_vectors)
-    probability_positive = classifier.predict_proba(field_word_vectors_scaled)[:, 1]
+    X = embedding_matrix[token_ids].float().numpy()
+    X_scaled = scaler.transform(X)
 
-    probability_rows = sorted(
-        [
+    probabilities = classifier.predict_proba(X_scaled)[:, 1]
+    predictions = classifier.predict(X_scaled)
+
+    rows = []
+
+    for item, probability, prediction in zip(
+        probe_words,
+        probabilities,
+        predictions,
+    ):
+        true_label = (
+            1
+            if item["sentiment"] == "positive"
+            else 0
+        )
+
+        rows.append(
             {
                 "word": item["word"],
                 "sentiment": item["sentiment"],
                 "probability_positive": float(probability),
+                "predicted_label": int(prediction),
+                "true_label": true_label,
+                "is_correct": int(prediction) == true_label,
             }
-            for item, probability in zip(field_words, probability_positive)
-        ],
-        key=lambda row: row["probability_positive"],
-    )
-    plot_logistic_regression_probabilities(probability_rows)
+        )
 
+    return rows
+
+def cosine_similarity_between_lr_and_good_bad(
+    classifier,
+    scaler,
+    embedding_matrix,
+    probe_words,
+    good_word="good",
+    bad_word="bad",
+):
+    """
+    Compare the sentiment direction learned by the logistic-regression probe
+    with a manually defined sentiment direction.
+
+    The manual sentiment direction is constructed as:
+
+        embedding(good) - embedding(bad)
+
+    and represents a simple positive-versus-negative axis in embedding space.
+
+    The logistic-regression coefficient vector represents the sentiment
+    direction learned automatically from all Hu & Liu sentiment words.
+
+    A high cosine similarity indicates that both approaches capture a
+    similar sentiment structure in the embedding space.
+    """
+
+    def find_token_id(word, sentiment):
+        """
+        Retrieve the token ID of a sentiment word from the probe dataset.
+        """
+        matches = [
+            item
+            for item in probe_words
+            if item["word"] == word and item["sentiment"] == sentiment
+        ]
+
+        if not matches:
+            raise ValueError(
+                f"Could not find word={word!r} with sentiment={sentiment!r}"
+            )
+
+        return int(matches[0]["token_id"])
+
+    # Retrieve embeddings for the sentiment anchor words.
+    good_id = find_token_id(good_word, "positive")
+    bad_id = find_token_id(bad_word, "negative")
+
+    good_vec = embedding_matrix[good_id].float().numpy()
+    bad_vec = embedding_matrix[bad_id].float().numpy()
+
+    # The classifier was trained on standardized embeddings.
+    # Therefore, the sentiment direction must be computed in the same
+    # feature space to ensure a meaningful comparison.
+    good_vec_scaled = scaler.transform(good_vec.reshape(1, -1))[0]
+    bad_vec_scaled = scaler.transform(bad_vec.reshape(1, -1))[0]
+
+    # Manually defined sentiment direction.
+    good_bad_direction = good_vec_scaled - bad_vec_scaled
+
+    # Logistic-regression weight vector.
+    # This vector represents the direction that best separates
+    # positive and negative sentiment words.
+    lr_direction = classifier.coef_[0]
+
+    # Measure directional similarity between both sentiment axes.
+    cosine_similarity = np.dot(
+        lr_direction,
+        good_bad_direction,
+    ) / (
+        np.linalg.norm(lr_direction)
+        * np.linalg.norm(good_bad_direction)
+    )
+
+    print("\n--- Sentiment Direction Comparison ---")
+    print(
+        f"Cosine similarity between "
+        f"LR direction and ({good_word} - {bad_word}): "
+        f"{cosine_similarity:.4f}"
+    )
+
+    if cosine_similarity > 0.8:
+        print(
+            "Interpretation: Strong agreement between the manually "
+            "defined and automatically learned sentiment directions."
+        )
+    elif cosine_similarity > 0.5:
+        print(
+            "Interpretation: Moderate agreement between the two "
+            "sentiment directions."
+        )
+    elif cosine_similarity > 0:
+        print(
+            "Interpretation: Weak agreement. The classifier captures "
+            "additional sentiment information beyond the simple "
+            f"{good_word}-{bad_word} axis."
+        )
+    else:
+        print(
+            "Interpretation: No agreement between the manually defined "
+            "and learned sentiment directions."
+        )
+
+    return cosine_similarity
 
 def run_logistic_regression_probe(sentiment_state):
     section(8, "Logistic Regression Sentiment Linear Probe")
@@ -215,17 +335,43 @@ def run_logistic_regression_probe(sentiment_state):
     y_test_pred = classifier.predict(X_test_scaled)
     y_test_prob = classifier.predict_proba(X_test_scaled)[:, 1]
     y_train_pred = classifier.predict(X_train_scaled)
+    y_train_prob = classifier.predict_proba(X_train_scaled)[:, 1]
 
     print_probe_evaluation("test set", y_test, y_test_pred)
     test_word_records = [probe_words[index] for index in test_indices]
-    print_misclassified_test_words(test_word_records, y_test, y_test_pred, y_test_prob)
+    print_misclassified_words("test", test_word_records, y_test, y_test_pred, y_test_prob)
     print_probe_evaluation("train set", y_train, y_train_pred)
+    train_word_records = [probe_words[index] for index in train_indices]
 
-    print(
-        "\nInterpretation: high accuracy indicates that sentiment information is "
-        "linearly separable in the input embedding space."
+
+    # ------------------------------------------------------------------
+    # Compare the automatically learned sentiment direction of the
+    # logistic-regression probe with the manually defined sentiment
+    # direction (good - bad).
+    #
+    # A high cosine similarity suggests that the classifier has learned
+    # a sentiment axis that is consistent with the manually chosen
+    # sentiment anchors.
+    # ------------------------------------------------------------------
+    cosine_similarity_between_lr_and_good_bad(
+        classifier=classifier,
+        scaler=scaler,
+        embedding_matrix=embedding_matrix,
+        probe_words=probe_words,
     )
 
-    plot_field_word_probabilities(classifier, scaler, embedding_matrix)
+    sentiment_axis_rows = (
+    build_logistic_regression_sentiment_axis_data(
+        classifier=classifier,
+        scaler=scaler,
+        embedding_matrix=embedding_matrix,
+        probe_words=probe_words,
+    )
+    )
+
+    plot_logistic_regression_sentiment_axis(
+    sentiment_axis_rows,
+    title="Logistic Regression Sentiment Axis",
+    max_words_per_side=50,)
 
     return classifier, scaler

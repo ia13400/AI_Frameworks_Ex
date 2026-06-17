@@ -37,9 +37,3 @@ ARITHMETIC_EXPERIMENTS = [
     "terrible - bad",
     "popular - unpopular",
 ]
-
-PROJECTION_FIELDS_TO_KEEP = {
-    "food_taste",
-    "product_quality",
-    "appearance_design",
-}
