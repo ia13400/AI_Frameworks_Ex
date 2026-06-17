@@ -7,7 +7,7 @@ import numpy as np
 import torch
 from sklearn.decomposition import PCA
 
-from config import OUTPUT_DIR
+from config import OUTPUT_PNG_DIR
 
 
 matplotlib.rcParams["figure.dpi"] = 100
@@ -76,7 +76,7 @@ def plot_global_pca(sentiment_words, positive_words, negative_words, vectors):
     ax.grid(alpha=0.2)
 
     plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "hu_liu_opinion_embeddings.png", dpi=120)
+    plt.savefig(OUTPUT_PNG_DIR / "hu_liu_opinion_embeddings.png", dpi=120)
     plt.close()
     print("\nSaved plot: hu_liu_opinion_embeddings.png")
 
@@ -111,7 +111,7 @@ def plot_pca_histogram(positive_words, negative_words):
     ax.grid(axis="y", alpha=0.2)
 
     plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "hu_liu_opinion_histogram.png", dpi=120)
+    plt.savefig(OUTPUT_PNG_DIR / "hu_liu_opinion_histogram.png", dpi=120)
     plt.close()
     print("Saved plot: hu_liu_opinion_histogram.png")
 
@@ -196,74 +196,21 @@ def plot_field_pca_panels(pairs_by_field, embedding_matrix, pca):
         ax.axis("off")
 
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper center", ncol=2, frameon=False)
-    fig.suptitle("Hu & Liu word-pair embeddings by field", fontsize=15, y=0.995)
+    fig.suptitle("Hu & Liu word-pair embeddings by field", fontsize=15, y=0.992)
+    fig.legend(
+        handles,
+        labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, 0.965),
+        ncol=2,
+        frameon=False,
+    )
     fig.supxlabel("PCA dimension 1")
     fig.supylabel("PCA dimension 2")
-    plt.tight_layout(rect=(0, 0, 1, 0.965))
-    plt.savefig(OUTPUT_DIR / "hu_liu_field_embedding_panels.png", dpi=130)
+    plt.tight_layout(rect=(0, 0, 1, 0.935))
+    plt.savefig(OUTPUT_PNG_DIR / "hu_liu_field_embedding_panels.png", dpi=130)
     plt.close()
     print("Saved plot: hu_liu_field_embedding_panels.png")
-
-
-def plot_umap_embeddings(sentiment_words, positive_words, negative_words, vectors):
-    try:
-        import umap
-    except ImportError:
-        print("Skipping UMAP plots: umap-learn is not installed.")
-        return
-
-    reducer = umap.UMAP(
-        n_components=2,
-        metric="cosine",
-        random_state=42,
-        n_neighbors=20,
-        min_dist=0.1,
-    )
-    coords = reducer.fit_transform(vectors)
-    for item, (x_coord, y_coord) in zip(sentiment_words, coords):
-        item["umap_x"] = float(x_coord)
-        item["umap_y"] = float(y_coord)
-
-    fig, ax = plt.subplots(figsize=(10, 7))
-    for group, color, label in [
-        (positive_words, "#2E8B57", "positive Hu & Liu words"),
-        (negative_words, "#B22222", "negative Hu & Liu words"),
-    ]:
-        ax.scatter(
-            [item["umap_x"] for item in group],
-            [item["umap_y"] for item in group],
-            c=color,
-            label=label,
-            alpha=0.65,
-            s=38,
-            edgecolors="white",
-            linewidths=0.4,
-        )
-
-    words_to_label = representative_labels(positive_words) + representative_labels(negative_words)
-    for label_index, item in enumerate(words_to_label):
-        x_offset = 5 if label_index % 2 == 0 else -5
-        y_offset = 5 if label_index % 3 else -9
-        ax.annotate(
-            item["word"],
-            (item["umap_x"], item["umap_y"]),
-            xytext=(x_offset, y_offset),
-            textcoords="offset points",
-            ha="left" if x_offset > 0 else "right",
-            fontsize=7.5,
-            bbox={"boxstyle": "round,pad=0.15", "fc": "white", "ec": "none", "alpha": 0.72},
-        )
-
-    ax.set_title("UMAP of Hu & Liu opinion words")
-    ax.set_xlabel("UMAP dimension 1")
-    ax.set_ylabel("UMAP dimension 2")
-    ax.legend(frameon=False)
-    ax.grid(alpha=0.2)
-    plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "hu_liu_opinion_embeddings_umap.png", dpi=120)
-    plt.close()
-    print("Saved plot: hu_liu_opinion_embeddings_umap.png")
 
 
 def plot_embedding_norms(items, embedding_matrix, filename, title):
@@ -307,7 +254,67 @@ def plot_embedding_norms(items, embedding_matrix, filename, title):
         ax.axhline(len(positive_rows) - 0.5, color="#404040", linewidth=1.3)
 
     plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / filename, dpi=130)
+    plt.savefig(OUTPUT_PNG_DIR / filename, dpi=130)
+    plt.close()
+    print(f"Saved plot: {filename}")
+
+
+def plot_embedding_norms_by_field_boxes(fields, embedding_matrix, filename):
+    field_count = len(fields)
+    n_cols = 2
+    n_rows = int(np.ceil(field_count / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(16, 3.2 * n_rows))
+    axes = np.asarray(axes).reshape(-1)
+    color_by_sentiment = {"positive": "#2E8B57", "negative": "#B22222"}
+
+    all_rows_by_field = []
+    all_norms = []
+    for field in fields:
+        rows = []
+        for pair in field["pairs"]:
+            for sentiment in ["positive", "negative"]:
+                item = pair[sentiment]
+                vector = embedding_matrix[item["token_id"]]
+                norm = float(torch.linalg.vector_norm(vector).item())
+                rows.append(
+                    {
+                        "word": item["word"],
+                        "sentiment": item["sentiment"],
+                        "norm": norm,
+                    }
+                )
+                all_norms.append(norm)
+        rows = sorted(rows, key=lambda row: (row["sentiment"] != "positive", row["norm"]))
+        all_rows_by_field.append((field, rows))
+
+    min_norm = min(all_norms)
+    max_norm = max(all_norms)
+    padding = max((max_norm - min_norm) * 0.08, 0.01)
+
+    for ax, (field, rows) in zip(axes, all_rows_by_field):
+        colors = [color_by_sentiment[row["sentiment"]] for row in rows]
+        labels = [
+            f"{row['word']} +" if row["sentiment"] == "positive" else f"{row['word']} -"
+            for row in rows
+        ]
+        ax.barh(labels, [row["norm"] for row in rows], color=colors, alpha=0.82)
+        ax.set_xlim(min_norm - padding, max_norm + padding)
+        ax.set_title(field["field_label"], fontsize=10.5)
+        ax.grid(axis="x", alpha=0.22)
+        ax.tick_params(axis="y", labelsize=8)
+        ax.set_facecolor("#FBFBFB")
+        for spine in ax.spines.values():
+            spine.set_visible(True)
+            spine.set_color("#6F6F6F")
+            spine.set_linewidth(1.1)
+
+    for ax in axes[field_count:]:
+        ax.axis("off")
+
+    fig.suptitle("L2 norms of Hu & Liu sentiment word embeddings by field", fontsize=15, y=0.995)
+    fig.supxlabel("L2 norm")
+    plt.tight_layout(rect=(0, 0, 1, 0.975))
+    plt.savefig(OUTPUT_PNG_DIR / filename, dpi=130)
     plt.close()
     print(f"Saved plot: {filename}")
 
@@ -380,7 +387,7 @@ def plot_sentiment_projection(rows, field_labels, filename, title, figsize):
     )
     ax.grid(axis="x", alpha=0.22)
     plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / filename, dpi=130)
+    plt.savefig(OUTPUT_PNG_DIR / filename, dpi=130)
     plt.close()
     print(f"Saved plot: {filename}")
 
@@ -403,6 +410,6 @@ def plot_logistic_regression_probabilities(probability_rows):
     ax.set_title("Linear probe positive-class probabilities for field-pair words")
     ax.grid(axis="x", alpha=0.22)
     plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "logistic_regression_field_word_probabilities.png", dpi=130)
+    plt.savefig(OUTPUT_PNG_DIR / "logistic_regression_field_word_probabilities.png", dpi=130)
     plt.close()
     print("Saved plot: logistic_regression_field_word_probabilities.png")

@@ -8,7 +8,6 @@ dependencies = [
     "pandas",
     "matplotlib",
     "scikit-learn",
-    "umap-learn",
     "torch>=2.0",
     "torchaudio",
     "mlflow>=2.0",

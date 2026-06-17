@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from config import (
     ARITHMETIC_EXPERIMENTS,
     FIELD_PAIRS_PATH,
-    FLAT_PAIRS_PATH,
     NEIGHBOR_TARGET_WORDS,
     PROJECTION_FIELDS_TO_KEEP,
 )
@@ -18,12 +17,11 @@ from lexicon_utils import (
 )
 from model_utils import section
 from plotting_utils import (
-    plot_embedding_norms,
+    plot_embedding_norms_by_field_boxes,
     plot_field_pca_panels,
     plot_global_pca,
     plot_pca_histogram,
     plot_sentiment_projection,
-    plot_umap_embeddings,
 )
 
 
@@ -44,12 +42,10 @@ def run_positive_negative_comparison(model, tokenizer):
     else:
         print(f"Skipping field PCA panels: {FIELD_PAIRS_PATH} not found.")
 
-    plot_umap_embeddings(sentiment_words, positive_words, negative_words, vectors)
-
     print("\nExample one-token positive words:")
-    print(", ".join(item["word"] for item in positive_words[:20]))
+    print(", ".join(item["word"] for item in positive_words[:5]))
     print("\nExample one-token negative words:")
-    print(", ".join(item["word"] for item in negative_words[:20]))
+    print(", ".join(item["word"] for item in negative_words[:5]))
 
     return {
         "embedding_matrix": embedding_matrix,
@@ -59,47 +55,17 @@ def run_positive_negative_comparison(model, tokenizer):
     }
 
 
-def load_flat_pair_items():
-    if not FLAT_PAIRS_PATH.exists():
-        print(f"Skipping flat word-pair analysis: {FLAT_PAIRS_PATH} not found.")
-        return []
-
-    flat_pairs = json.loads(FLAT_PAIRS_PATH.read_text(encoding="utf-8"))["pairs"]
-    items = []
-    for pair in flat_pairs:
-        items.append(pair["positive"])
-        items.append(pair["negative"])
-    return items
-
-
 def run_embedding_norm_analysis(embedding_matrix):
-    flat_items = load_flat_pair_items()
-    if not flat_items:
-        return
-
-    plot_embedding_norms(
-        flat_items,
-        embedding_matrix,
-        "sentiment_embedding_norms.png",
-        "L2 norms of selected Hu & Liu sentiment token embeddings",
-    )
-
     if not FIELD_PAIRS_PATH.exists():
-        print(f"Skipping per-field norm plot: {FIELD_PAIRS_PATH} not found.")
+        print(f"Skipping field norm plots: {FIELD_PAIRS_PATH} not found.")
         return
 
     pairs_by_field = json.loads(FIELD_PAIRS_PATH.read_text(encoding="utf-8"))
-    field_items = []
-    for field in pairs_by_field["fields"]:
-        for pair in field["pairs"]:
-            field_items.append({**pair["positive"], "word": f"{field['field_label']}: {pair['positive']['word']}"})
-            field_items.append({**pair["negative"], "word": f"{field['field_label']}: {pair['negative']['word']}"})
 
-    plot_embedding_norms(
-        field_items,
+    plot_embedding_norms_by_field_boxes(
+        pairs_by_field["fields"],
         embedding_matrix,
-        "sentiment_embedding_norms_by_field.png",
-        "L2 norms of Hu & Liu sentiment token embeddings by field",
+        "sentiment_embedding_norms_all_fields.png",
     )
 
 

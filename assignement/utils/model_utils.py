@@ -5,7 +5,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 
-from config import EXAMPLE_PROMPTS, MODEL_NAME, OUTPUT_DIR
+from config import MODEL_NAME, OUTPUT_PNG_DIR
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
@@ -119,7 +119,7 @@ def analyze_parameters(model) -> None:
     ax2.set_title("Parameter Distribution")
 
     plt.tight_layout()
-    plt.savefig(OUTPUT_DIR / "parameterverteilung.png", dpi=120)
+    plt.savefig(OUTPUT_PNG_DIR / "parameterverteilung.png", dpi=120)
     plt.close()
 
     print(f"\n{'Component':<25} {'Params':>12}   {'Share':>6}")
@@ -155,7 +155,7 @@ def top_k_predictions(prompt: str, model, tokenizer, device: torch.device, k: in
         )
 
 
-def run_top_k_predictions(model, tokenizer, device: torch.device) -> None:
+def run_top_k_predictions(prompts, model, tokenizer, device: torch.device, k: int = 5) -> None:
     section(5, "Top-K Vorhersagen")
-    for prompt in EXAMPLE_PROMPTS:
-        top_k_predictions(prompt, model, tokenizer, device, k=5)
+    for prompt in prompts:
+        top_k_predictions(prompt, model, tokenizer, device, k=k)

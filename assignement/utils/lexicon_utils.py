@@ -4,26 +4,56 @@ from pathlib import Path
 
 import nltk
 import torch
-from nltk.corpus import opinion_lexicon
 
-from config import MODEL_NAME, NEGATIVE_WORDS_PATH, POSITIVE_WORDS_PATH
+from config import INPUT_DIR, MODEL_NAME, NEGATIVE_WORDS_PATH, POSITIVE_WORDS_PATH
+
+
+NLTK_DATA_DIR = INPUT_DIR / "nltk_data"
+OPINION_LEXICON_DIR = NLTK_DATA_DIR / "corpora" / "opinion_lexicon"
+
+
+def read_hu_liu_word_file(filename: str):
+    """Read one Hu & Liu word-list file and ignore comments/blank lines."""
+    path = OPINION_LEXICON_DIR / filename
+    if not path.exists():
+        raise FileNotFoundError(f"Hu & Liu word file not found: {path}")
+
+    words = []
+    for line in path.read_text(encoding="ISO-8859-1").splitlines():
+        line = line.strip()
+        if not line or line.startswith(";"):
+            continue
+        words.append(line)
+    return words
+
+
+def import_hu_liu_dataset():
+    """Ensure the Hu & Liu Opinion Lexicon is available locally and load it."""
+    nltk_data_path = str(NLTK_DATA_DIR.resolve())
+    if nltk_data_path not in nltk.data.path:
+        nltk.data.path.append(nltk_data_path)
+
+    positive_path = OPINION_LEXICON_DIR / "positive-words.txt"
+    negative_path = OPINION_LEXICON_DIR / "negative-words.txt"
+
+    if not positive_path.exists() or not negative_path.exists():
+        NLTK_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        print(f"Downloading Hu & Liu Opinion Lexicon to: {NLTK_DATA_DIR}")
+        nltk.download("opinion_lexicon", download_dir=nltk_data_path, quiet=True)
+    else:
+        print(f"Hu & Liu Opinion Lexicon already available in: {NLTK_DATA_DIR}")
+
+    positive = read_hu_liu_word_file("positive-words.txt")
+    negative = read_hu_liu_word_file("negative-words.txt")
+
+    print(f"Positive lexicon words: {len(positive)}")
+    print(f"Negative lexicon words: {len(negative)}")
+    return positive, negative
 
 
 def load_hu_liu_opinion_lexicon():
     """Load the Hu & Liu Opinion Lexicon through NLTK."""
-    nltk_data_dir = Path("nltk_data")
-    nltk.data.path.append(str(nltk_data_dir.resolve()))
-
-    try:
-        positive = opinion_lexicon.positive()
-        negative = opinion_lexicon.negative()
-    except LookupError:
-        nltk_data_dir.mkdir(exist_ok=True)
-        nltk.download("opinion_lexicon", download_dir=str(nltk_data_dir), quiet=True)
-        positive = opinion_lexicon.positive()
-        negative = opinion_lexicon.negative()
-
-    return positive, negative
+    return import_hu_liu_dataset()
 
 
 def is_plain_word(word: str) -> bool:
