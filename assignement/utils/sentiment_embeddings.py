@@ -82,7 +82,7 @@ def nearest_neighbors_general_and_hu_liu(
     embedding_matrix,
     positive_words,
     negative_words,
-    k=8,
+    k=5,
 ):
     token_id = single_token_for_running_text(target_word, tokenizer)
     if token_id is None:
@@ -173,12 +173,13 @@ def embedding_arithmetic_neighbors(expression, tokenizer, embedding_matrix, posi
 
 
 def run_cosine_neighbor_analysis(
+    target_words,
     tokenizer,
     embedding_matrix,
     positive_words,
     negative_words,
 ):
-    for target_word in NEIGHBOR_TARGET_WORDS:
+    for target_word in target_words:
         nearest_neighbors_general_and_hu_liu(
             target_word,
             tokenizer,
@@ -288,6 +289,7 @@ def run_token_embedding_visualization(tokenizer, sentiment_state):
 
     run_embedding_norm_analysis(embedding_matrix)
     run_cosine_neighbor_analysis(
+        NEIGHBOR_TARGET_WORDS,
         tokenizer,
         embedding_matrix,
         positive_words,
